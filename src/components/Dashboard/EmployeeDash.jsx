@@ -10,6 +10,10 @@ const EmployeeDash = (props) => {
     setTaskData(props.data);
   }, [props.data]);
 
+  if (!taskData) {
+    return <div className="text-white p-10">Loading dashboard...</div>;
+  }
+
   const updateLocalStorageAndState = (updatedUser) => {
     const allUsers = JSON.parse(localStorage.getItem("userData")) || [];
     const updatedUsers = allUsers.map(user =>
@@ -25,7 +29,7 @@ const EmployeeDash = (props) => {
   const handleAcceptTask = (taskToAccept) => {
     const updatedTasks = taskData.tasks.map(task =>
       task.title === taskToAccept.title
-        ? { ...task, NewTask: false, active: true }
+        ? { ...task, newTask: false, active: true }
         : task
     );
 
@@ -57,16 +61,14 @@ const EmployeeDash = (props) => {
 
   return (
     <div className="relative min-h-screen h-screen p-10 text-white bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-hidden">
-      {/* Animated background blobs */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
         <div className="absolute w-80 h-80 bg-purple-500 opacity-20 rounded-full mix-blend-multiply filter blur-3xl animate-blob top-0 left-0" />
         <div className="absolute w-80 h-80 bg-pink-500 opacity-20 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000 top-20 left-1/2" />
         <div className="absolute w-80 h-80 bg-blue-500 opacity-20 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000 top-1/2 left-1/3" />
       </div>
 
-      {/* Foreground content */}
       <div className="relative z-10">
-        <Header userName={taskData.firstname} changeUser={props.changeUser} />
+        <Header userName={taskData?.name || "Employee"} changeUser={props.changeUser} />
         <TaskListNum data={taskData} />
         <TaskList
           data={taskData}

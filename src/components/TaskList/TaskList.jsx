@@ -5,7 +5,9 @@ import CompleteTask from './CompleteTask'
 import FailedTask from './FailedTask'
 
 const TaskList = ({ data, setData, onCompleteTask, onFailTask }) => {
-  if (!data) return null;
+  if (!data || !Array.isArray(data.tasks)) {
+    return <div className="text-white p-10">No task data available</div>;
+  }
 
   return (
     <div
@@ -15,11 +17,11 @@ const TaskList = ({ data, setData, onCompleteTask, onFailTask }) => {
       {data.tasks.map((elem, idx) => {
         const isFirst = idx === 0 ? 'ml-5' : '';
         const isLast = idx === data.tasks.length - 1 ? 'mr-5' : '';
-        const fixedHeight = 'h-70'; // ⬅️ Fixed height class
+        const fixedHeight = 'h-70';
 
         const commonWrapperClass = `${isFirst} ${isLast} ${fixedHeight}`;
 
-        if (elem.active) {
+        if (elem?.active) {
           return (
             <div key={idx} className={commonWrapperClass}>
               <AcceptTask data={elem} onComplete={onCompleteTask} onFail={onFailTask} />
@@ -27,7 +29,7 @@ const TaskList = ({ data, setData, onCompleteTask, onFailTask }) => {
           );
         }
 
-        if (elem.newTask) {
+        if (elem?.newTask) {
           return (
             <div key={idx} className={commonWrapperClass}>
               <NewTask data={elem} setData={setData} />
@@ -35,7 +37,7 @@ const TaskList = ({ data, setData, onCompleteTask, onFailTask }) => {
           );
         }
 
-        if (elem.completed) {
+        if (elem?.completed) {
           return (
             <div key={idx} className={commonWrapperClass}>
               <CompleteTask data={elem} />
@@ -43,7 +45,7 @@ const TaskList = ({ data, setData, onCompleteTask, onFailTask }) => {
           );
         }
 
-        if (elem.failed) {
+        if (elem?.failed) {
           return (
             <div key={idx} className={commonWrapperClass}>
               <FailedTask data={elem} />
