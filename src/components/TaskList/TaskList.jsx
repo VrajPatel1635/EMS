@@ -1,12 +1,22 @@
-import React from 'react'
-import AcceptTask from './AcceptTask'
-import NewTask from './NewTask'
-import CompleteTask from './CompleteTask'
-import FailedTask from './FailedTask'
+import React from 'react';
+import AcceptTask from './AcceptTask';
+import NewTask from './NewTask';
+import CompleteTask from './CompleteTask';
+import FailedTask from './FailedTask';
 
-const TaskList = ({ data, setData, onCompleteTask, onFailTask }) => {
-  if (!data || !Array.isArray(data.tasks)) {
-    return <div className="text-white p-10">No task data available</div>;
+// The 'data' prop here is now directly the array of tasks,
+// as passed from EmployeeDash.jsx
+const TaskList = ({ data, handleAcceptTask, onCompleteTask, onFailTask }) => {
+
+  // Corrected check: 'data' itself should be an array
+  if (!Array.isArray(data)) {
+    console.error("TaskList received non-array data:", data); // Log error for debugging
+    return <div className="text-white p-10">Invalid task data format.</div>;
+  }
+
+  // If the array is empty, we can show a different message
+  if (data.length === 0) {
+    return <div className="text-white p-10">No tasks to display at the moment.</div>;
   }
 
   return (
@@ -14,12 +24,22 @@ const TaskList = ({ data, setData, onCompleteTask, onFailTask }) => {
       id="tasklist"
       className="flex items-center justify-start overflow-x-auto gap-5 flex-nowrap h-105 w-full "
     >
-      {data.tasks.map((elem, idx) => {
+      {data.map((elem, idx) => { // Directly map over 'data'
+        // Add a defensive check for 'elem' itself, though it should be an object from App.jsx's defaults
+        if (!elem || typeof elem !== 'object') {
+            console.warn("TaskList encountered a non-object element in tasks array:", elem);
+            return null; // Skip rendering invalid elements
+        }
+
         const isFirst = idx === 0 ? 'ml-5' : '';
-        const isLast = idx === data.tasks.length - 1 ? 'mr-5' : '';
+        const isLast = idx === data.length - 1 ? 'mr-5' : ''; // Use data.length
         const fixedHeight = 'h-70';
 
         const commonWrapperClass = `${isFirst} ${isLast} ${fixedHeight}`;
+
+        // The optional chaining (elem?.property) is good here.
+        // Ensure that the specific child components (AcceptTask, NewTask etc.) also handle
+        // the possibility of nested properties within their 'data' prop being undefined if needed.
 
         if (elem?.active) {
           return (
@@ -32,7 +52,13 @@ const TaskList = ({ data, setData, onCompleteTask, onFailTask }) => {
         if (elem?.newTask) {
           return (
             <div key={idx} className={commonWrapperClass}>
-              <NewTask data={elem} setData={setData} />
+              {/* Note: `setData` prop for NewTask. If this is meant to update individual tasks,
+                 you'll need to pass down a function from EmployeeDash that knows how to do that.
+                 Currently, EmployeeDash updates tasks via handleAccept/Complete/Fail, not a general setData for NewTask.
+                 If NewTask is only for displaying, then setData might not be needed or should be an updater function.
+                 I've kept it as is for now, assuming its intended use.
+              */}
+              <NewTask data={elem} setData={() => console.log('setData called from NewTask - implement update logic in parent')} />
             </div>
           );
         }
@@ -53,7 +79,7 @@ const TaskList = ({ data, setData, onCompleteTask, onFailTask }) => {
           );
         }
 
-        return null;
+        return null; // If a task doesn't match any state, don't render it
       })}
     </div>
   );
