@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Login from './components/Auth/Login.jsx';
 import AdminDash from './components/Dashboard/AdminDash';
 import EmployeeDash from './components/Dashboard/EmployeeDash';
