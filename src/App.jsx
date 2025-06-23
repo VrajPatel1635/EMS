@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+// Changed BrowserRouter to HashRouter here
+import { HashRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Login from './components/Auth/Login.jsx';
 import AdminDash from './components/Dashboard/AdminDash';
 import EmployeeDash from './components/Dashboard/EmployeeDash';
@@ -11,15 +12,17 @@ function AppWrapper() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loggedInUser = localStorage.getItem('loggedInUser');
-    if (loggedInUser) {
-      const parsedUser = JSON.parse(loggedInUser);
-      setUser(parsedUser.role);
-      setLoggedInUserData(parsedUser.data);
+    const storedUser = localStorage.getItem('loggedInUser');
+    const storedUsers = localStorage.getItem('userData');
+
+    if (storedUser) {
+      const parsed = JSON.parse(storedUser);
+      setUser(parsed.role);
+      setLoggedInUserData(parsed.data);
     }
 
-    const existing = localStorage.getItem('userData');
-    if (!existing) {
+    if (!storedUsers) {
+      // Initialize default employees if no user data is found
       const defaultEmployees = [
         {
           id: 1,
@@ -44,69 +47,73 @@ function AppWrapper() {
               completed: false,
               failed: false
             }
-          ],
-        },
+          ]
+        }
       ];
-
       localStorage.setItem('userData', JSON.stringify(defaultEmployees));
       setUserData(defaultEmployees);
     } else {
-      setUserData(JSON.parse(existing));
+      setUserData(JSON.parse(storedUsers));
     }
-  }, []);
+  }, []); // Empty dependency array means this runs once on component mount
 
   const handleLogin = (email, password) => {
+    // Admin login
     if (email === 'admin@example.com' && password === '12345') {
       const adminData = { name: 'Admin', email };
       setUser('admin');
       setLoggedInUserData(adminData);
-      localStorage.setItem(
-        'loggedInUser',
-        JSON.stringify({ role: 'admin', data: adminData })
-      );
-      navigate('/admin');
-    } else if (userData) {
-      const employee = userData.find(
+      localStorage.setItem('loggedInUser', JSON.stringify({ role: 'admin', data: adminData }));
+      navigate('/admin'); // Navigate to admin dashboard
+    } else {
+      // Employee login
+      const users = JSON.parse(localStorage.getItem('userData')) || [];
+      const employee = users.find(
         (e) => e.email.toLowerCase() === email.toLowerCase() && e.password === password
       );
       if (employee) {
         setUser('employee');
         setLoggedInUserData(employee);
-        localStorage.setItem(
-          'loggedInUser',
-          JSON.stringify({ role: 'employee', data: employee })
-        );
-        navigate('/employee');
+        localStorage.setItem('loggedInUser', JSON.stringify({ role: 'employee', data: employee }));
+        navigate('/employee'); // Navigate to employee dashboard
       } else {
-        alert('Invalid Credentials');
+        // Using a custom modal/message for alerts in a real app, but for now:
+        console.warn('Invalid Credentials entered.'); // Log to console instead of alert()
+        // You could also update a state to show an error message on the UI
       }
     }
   };
 
   const handleLogout = () => {
-    setUser(null);
-    setLoggedInUserData(null);
-    localStorage.removeItem('loggedInUser');
-    navigate('/');
+    setUser(null); // Clear user role state
+    setLoggedInUserData(null); // Clear logged in user data state
+    localStorage.removeItem('loggedInUser'); // Remove user data from localStorage
+    navigate('/'); // Navigate back to the login page
   };
 
   return (
     <Routes>
+      {/* Route for the login page, accessible at the root or /# */}
       <Route path="/" element={<Login handleLogin={handleLogin} />} />
+      {/* Route for the Admin Dashboard */}
       <Route
         path="/admin"
         element={<AdminDash user={loggedInUserData} changeUser={handleLogout} />}
       />
+      {/* Route for the Employee Dashboard */}
       <Route
         path="/employee"
         element={<EmployeeDash data={loggedInUserData} changeUser={handleLogout} />}
       />
+      {/* You might want a catch-all route for 404s, but HashRouter helps mitigate this */}
+      {/* <Route path="*" element={<div>404 Not Found</div>} /> */}
     </Routes>
   );
 }
 
 const App = () => (
-  <Router basename="/EMS">
+  // HashRouter doesn't require a basename, as the hash itself handles subpaths
+  <Router> 
     <AppWrapper />
   </Router>
 );
