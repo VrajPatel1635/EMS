@@ -52,13 +52,7 @@ const TaskList = ({ data, handleAcceptTask, onCompleteTask, onFailTask }) => {
         if (elem?.newTask) {
           return (
             <div key={idx} className={commonWrapperClass}>
-              {/* Note: `setData` prop for NewTask. If this is meant to update individual tasks,
-                 you'll need to pass down a function from EmployeeDash that knows how to do that.
-                 Currently, EmployeeDash updates tasks via handleAccept/Complete/Fail, not a general setData for NewTask.
-                 If NewTask is only for displaying, then setData might not be needed or should be an updater function.
-                 I've kept it as is for now, assuming its intended use.
-              */}
-              <NewTask data={elem} setData={setData} />  //setData is not defined in TaskList's props.
+              <NewTask data={elem} setData={setData} />
             </div>
           );
         }
