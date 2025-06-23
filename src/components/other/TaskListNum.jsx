@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ClipboardList, CheckCheck, Clock, Ban } from 'lucide-react';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
+// TaskCard component remains the same, it's a presentational component
 const TaskCard = ({ count, label, icon: Icon, bgGradient, tooltipText }) => (
   <Tooltip.Provider delayDuration={200}>
     <Tooltip.Root>
@@ -39,10 +40,18 @@ const TaskCard = ({ count, label, icon: Icon, bgGradient, tooltipText }) => (
   </Tooltip.Provider>
 );
 
+// TaskListNum now receives the 'tasks' array directly as its 'data' prop
 const TaskListNum = ({ data }) => {
-  if (!data) return null;
+  // Ensure data is an array. It should be, based on EmployeeDash.jsx passing `tasks`.
+  const tasks = Array.isArray(data) ? data : [];
 
-  const taskCounts = data.taskCount;
+  // Calculate task counts based on the 'tasks' array
+  const taskCounts = {
+    newTask: tasks.filter(task => task && task.newTask).length,
+    completed: tasks.filter(task => task && task.completed).length,
+    active: tasks.filter(task => task && task.active).length,
+    failed: tasks.filter(task => task && task.failed).length,
+  };
 
   return (
     <motion.div
