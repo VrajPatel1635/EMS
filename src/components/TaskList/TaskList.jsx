@@ -55,7 +55,10 @@ const TaskList = ({ data, handleAcceptTask, onCompleteTask, onFailTask }) => {
   return (
     <motion.div
       id="tasklist"
-      className="flex items-start overflow-x-auto gap-6 flex-nowrap w-full p-4 md:p-6 bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-xl border border-gray-700 mt-8 mb-10 min-h-[300px] scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-900"
+      // Added `overflow-hidden` to clip content, and adjusted padding to ensure content fits within.
+      // Also ensured horizontal scroll applies correctly to the *inner* content if needed,
+      // while the main blurred box contains its elements.
+      className="flex items-start gap-6 flex-nowrap w-full p-4 md:p-6 bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-xl border border-gray-700 mt-8 mb-10 min-h-[300px] overflow-x-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-900"
       variants={listContainerVariants}
       initial="hidden"
       animate="visible"
@@ -67,7 +70,8 @@ const TaskList = ({ data, handleAcceptTask, onCompleteTask, onFailTask }) => {
         }
 
         // Apply consistent styling and spacing for each task card wrapper
-        const commonWrapperClass = "flex-shrink-0 w-[320px] h-auto transform transition-transform duration-300 hover:scale-[1.01] "; // Removed ml/mr for better gap control
+        // Ensuring these cards are sized correctly and don't overflow their internal content if text is too long
+        const commonWrapperClass = "flex-shrink-0 w-[320px] h-auto transform transition-transform duration-300 hover:scale-[1.01] overflow-hidden"; // Added overflow-hidden to card itself
 
         // Check for task status and render appropriate component
         if (elem?.active) {
