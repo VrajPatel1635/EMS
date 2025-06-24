@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion'; // For potential subtle animations
+import { motion } from 'framer-motion';
 import AcceptTask from './AcceptTask';
 import NewTask from './NewTask';
 import CompleteTask from './CompleteTask';
@@ -55,10 +55,10 @@ const TaskList = ({ data, handleAcceptTask, onCompleteTask, onFailTask }) => {
   return (
     <motion.div
       id="tasklist"
-      // Added `overflow-hidden` to clip content, and adjusted padding to ensure content fits within.
-      // Also ensured horizontal scroll applies correctly to the *inner* content if needed,
-      // while the main blurred box contains its elements.
-      className="flex items-start gap-6 flex-nowrap w-full p-4 md:p-6 bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-xl border border-gray-700 mt-8 mb-10 min-h-[300px] overflow-x-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-900"
+      // REMOVED: bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-xl border border-gray-700
+      // Adjusted padding to 'p-0' if the padding was exclusively for the box,
+      // or 'px-4' for horizontal padding to ensure tasks aren't against edges.
+      className="flex items-start gap-6 flex-nowrap w-full pt-4 md:pt-6 pb-4 mt-8 mb-10 min-h-[300px] overflow-x-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-900"
       variants={listContainerVariants}
       initial="hidden"
       animate="visible"
@@ -70,22 +70,21 @@ const TaskList = ({ data, handleAcceptTask, onCompleteTask, onFailTask }) => {
         }
 
         // Apply consistent styling and spacing for each task card wrapper
-        // Ensuring these cards are sized correctly and don't overflow their internal content if text is too long
-        const commonWrapperClass = "flex-shrink-0 w-[320px] h-auto transform transition-transform duration-300 hover:scale-[1.01] overflow-hidden"; // Added overflow-hidden to card itself
+        const commonWrapperClass = "flex-shrink-0 w-[320px] h-auto transform transition-transform duration-300 hover:scale-[1.01] overflow-hidden";
 
         // Check for task status and render appropriate component
-        if (elem?.active) {
+        if (elem?.newTask) { // Moved newTask first to match image order
           return (
             <motion.div key={elem.id || idx} variants={taskItemVariants} className={commonWrapperClass}>
-              <AcceptTask data={elem} onComplete={onCompleteTask} onFail={onFailTask} />
+              <NewTask data={elem} onAcceptTask={handleAcceptTask} />
             </motion.div>
           );
         }
 
-        if (elem?.newTask) {
+        if (elem?.active) {
           return (
             <motion.div key={elem.id || idx} variants={taskItemVariants} className={commonWrapperClass}>
-              <NewTask data={elem} onAcceptTask={handleAcceptTask} />
+              <AcceptTask data={elem} onComplete={onCompleteTask} onFail={onFailTask} />
             </motion.div>
           );
         }
