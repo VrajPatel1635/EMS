@@ -5,69 +5,70 @@ import AllTask from '../other/AllTask'; // Ensure this path is correct
 
 const AdminDash = (props) => {
   return (
-    // FIX: Changed h-screen to min-h-screen and overflow-hidden to overflow-y-auto
-    // This allows the content to dictate the height and enables vertical scrolling when necessary.
-    <div className="relative min-h-screen p-10 text-white bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-y-auto">
-      {/* NEW ANIMATED BACKGROUND ELEMENTS */}
-      {/* The background elements should also respect the scrolling for a continuous effect.
-          Moving them inside the main scrollable div, but still keeping them absolute,
-          will allow them to extend beyond the initial viewport height if content scrolls.
-          If the desire is for the background to be fixed and content to scroll over it,
-          we'd need a different approach (e.g., fixed positioning on a parent or global level).
-          For now, keeping them within the scrollable content container makes them scroll with content.
-      */}
+    <div className="relative min-h-screen p-10 text-white bg-gradient-to-br from-gray-950 via-gray-900 to-black overflow-y-auto">
+      {/* NEW: More subtle, larger, and diffused animated background elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute w-[400px] h-[400px] bg-purple-600 opacity-15 rounded-full mix-blend-multiply filter blur-3xl animate-flow top-[-50px] left-[-100px] animation-delay-0" />
-        <div className="absolute w-[500px] h-[500px] bg-pink-600 opacity-15 rounded-full mix-blend-multiply filter blur-3xl animate-flow top-[100px] left-[calc(50%-250px)] animation-delay-2000" />
-        <div className="absolute w-[350px] h-[350px] bg-blue-600 opacity-15 rounded-full mix-blend-multiply filter blur-3xl animate-flow bottom-[-50px] right-[-100px] animation-delay-4000" />
-        <div className="absolute w-[450px] h-[450px] bg-green-600 opacity-10 rounded-full mix-blend-multiply filter blur-3xl animate-flow top-[calc(50%-225px)] right-[-150px] animation-delay-6000" />
-        <div className="absolute w-[600px] h-[600px] bg-orange-600 opacity-10 rounded-full mix-blend-multiply filter blur-3xl animate-flow bottom-[0px] left-[calc(20%)] animation-delay-8000" />
+        {/* Large, very blurred, slowly moving gradients */}
+        <div className="absolute w-[800px] h-[800px] bg-indigo-700 opacity-5 rounded-full mix-blend-screen filter blur-3xl animate-nebula-slow top-[-200px] left-[-200px] animation-delay-0" />
+        <div className="absolute w-[1000px] h-[1000px] bg-purple-700 opacity-5 rounded-full mix-blend-screen filter blur-3xl animate-nebula-medium bottom-[-300px] right-[-300px] animation-delay-3000" />
+        <div className="absolute w-[700px] h-[700px] bg-blue-700 opacity-5 rounded-full mix-blend-screen filter blur-3xl animate-nebula-fast top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 animation-delay-6000" />
+        <div className="absolute w-[900px] h-[900px] bg-cyan-700 opacity-3 rounded-full mix-blend-screen filter blur-3xl animate-nebula-slow top-[20%] right-[-100px] animation-delay-9000" />
       </div>
 
-      {/* NEW CSS ANIMATIONS */}
+      {/* NEW CSS ANIMATIONS for the subtle nebula effect */}
       <style>{`
-        @keyframes flow {
-          0% {
+        /* Keyframe animation for subtle, slow nebulous movement */
+        @keyframes nebula-slow {
+          0%, 100% {
             transform: translate(0, 0) scale(1) rotate(0deg);
-            opacity: 0.15;
-          }
-          25% {
-            transform: translate(20px, -30px) scale(1.05) rotate(15deg);
-            opacity: 0.2;
+            opacity: 0.05;
           }
           50% {
-            transform: translate(-10px, 40px) scale(0.95) rotate(-10deg);
-            opacity: 0.1;
+            transform: translate(50px, -70px) scale(1.02) rotate(5deg);
+            opacity: 0.08;
           }
-          75% {
-            transform: translate(30px, -20px) scale(1.1) rotate(5deg);
-            opacity: 0.25;
-          }
-          100% {
+        }
+        @keyframes nebula-medium {
+          0%, 100% {
             transform: translate(0, 0) scale(1) rotate(0deg);
-            opacity: 0.15;
+            opacity: 0.05;
+          }
+          50% {
+            transform: translate(-60px, 80px) scale(0.98) rotate(-8deg);
+            opacity: 0.07;
           }
         }
-        .animate-flow {
-          animation: flow 10s ease-in-out infinite alternate; /* Longer duration, alternate direction */
+        @keyframes nebula-fast {
+          0%, 100% {
+            transform: translate(0, 0) scale(1) rotate(0deg);
+            opacity: 0.05;
+          }
+          50% {
+            transform: translate(70px, -50px) scale(1.03) rotate(10deg);
+            opacity: 0.09;
+          }
         }
+
+        .animate-nebula-slow {
+          animation: nebula-slow 20s ease-in-out infinite alternate;
+        }
+        .animate-nebula-medium {
+          animation: nebula-medium 25s ease-in-out infinite alternate;
+        }
+        .animate-nebula-fast {
+          animation: nebula-fast 18s ease-in-out infinite alternate;
+        }
+
+        /* Utility classes for animation delays */
         .animation-delay-0 { animation-delay: 0s; }
-        .animation-delay-2000 { animation-delay: 2s; }
-        .animation-delay-4000 { animation-delay: 4s; }
+        .animation-delay-3000 { animation-delay: 3s; }
         .animation-delay-6000 { animation-delay: 6s; }
-        .animation-delay-8000 { animation-delay: 8s; }
+        .animation-delay-9000 { animation-delay: 9s; }
       `}</style>
 
       {/* Main content remains on top */}
       <div className="relative z-10">
         <Header userName="Admin" changeUser={props.changeUser} />
-        {/*
-          AdminDash needs to pass the allEmployees data to AllTask.
-          The allEmployees prop should be coming from App.jsx -> AdminDash.
-          Assuming props.allEmployees is available now, or it can be fetched
-          from AuthContext directly in AllTask if AdminDash doesn't need to pass it explicitly.
-          For consistency with previous AdminDash updates, I'm expecting props.allEmployees.
-        */}
         <CreateTask />
         <AllTask allEmployees={props.allEmployees} />
       </div>
