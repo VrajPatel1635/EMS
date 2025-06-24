@@ -1,136 +1,116 @@
+// src/components/other/CreateTask.jsx
+
 import React, { useContext, useState, useEffect } from 'react';
-import { AuthContext } from '../../context/AuthProvider';
-import { updateEmployeeStorage } from '../../utils/LocalStorage';
+import { AuthContext } from '../../context/AuthProvider'; // Assuming AuthContext is used here
+// Corrected import: Import the default 'LocalStorage' object, not a named export
+import LocalStorage from '../../utils/LocalStorage'; // Adjust path if needed
 
 const CreateTask = () => {
-  const [userData, setUserData] = useContext(AuthContext);
+  // If CreateTask needs to update employee data, it should get the updateUserData function
+  // from AuthContext, as AuthProvider is now managing userData.
+  // Assuming AuthProvider's context value is [userData, updateUserData]
+  const [userData, updateUserData] = useContext(AuthContext);
 
   const [taskTitle, setTaskTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
-  const [category, setCategory] = useState('');
-  const [assignTo, setAssignTo] = useState('');
-  const [employeeList, setEmployeeList] = useState([]);
-
-  useEffect(() => {
-    const employees = userData?.filter((user) => user.role === 'employee');
-    setEmployeeList(employees || []);
-  }, [userData]);
+  const [taskDescription, setTaskDescription] = useState('');
+  const [taskCategory, setTaskCategory] = useState('');
+  const [taskDate, setTaskDate] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const newTask = {
-      title: taskTitle,
-      description,
-      date,
-      category,
-      active: false,
-      newTask: true,
-      failed: false,
-      completed: false,
-    };
+    // In a real application, you'd likely select an employee to assign the task to.
+    // For now, let's just add it to the first employee's tasks in userData for demonstration.
+    if (userData && userData.length > 0) {
+      const firstEmployee = { ...userData[0] }; // Create a copy to modify
 
-    const updatedData = userData.map((user) => {
-      if (user.firstname === assignTo) {
-        return {
-          ...user,
-          tasks: [...(user.tasks || []), newTask],
-        };
-      }
-      return user;
-    });
+      const newTask = {
+        title: taskTitle,
+        description: taskDescription,
+        category: taskCategory,
+        date: taskDate,
+        newTask: true,  // New tasks usually start as new
+        active: false,
+        completed: false,
+        failed: false,
+      };
 
-    setUserData(updatedData);
-    updateEmployeeStorage(updatedData);
+      firstEmployee.tasks = [...(firstEmployee.tasks || []), newTask]; // Add new task
 
-    setTaskTitle('');
-    setDescription('');
-    setDate('');
-    setCategory('');
-    setAssignTo('');
+      // Update the whole userData array with the modified employee
+      const updatedAllUsers = userData.map(user =>
+        user.id === firstEmployee.id ? firstEmployee : user
+      );
+
+      // Now, use the updateUserData function from AuthContext to update state and localStorage
+      updateUserData(updatedAllUsers);
+      console.log("CreateTask: New task added to employee and data updated:", newTask);
+
+      // Clear form fields
+      setTaskTitle('');
+      setTaskDescription('');
+      setTaskCategory('');
+      setTaskDate('');
+
+    } else {
+      console.warn("CreateTask: No employee data available to add a task to.");
+    }
   };
 
   return (
-    <div className="w-full max-w-none p-6 md:p-10 bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-2xl shadow-2xl text-white  mx-auto mt-5">
-      <h2 className="text-2xl font-bold mb-6 text-center text-blue-400">Create New Task</h2>
-      <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-8">
-        {/* Left Side */}
-        <div className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium mb-1">Task Title</label>
-            <input
-              value={taskTitle}
-              onChange={(e) => setTaskTitle(e.target.value)}
-              type="text"
-              required
-              placeholder="e.g. Create Landing Page"
-              className="w-full py-2 px-4 rounded-xl border border-gray-700 bg-[#262626] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Due Date</label>
-            <input
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              type="date"
-              required
-              className="w-full py-2 px-4 rounded-xl border border-gray-700 bg-[#262626] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Assign To</label>
-            <select
-              value={assignTo}
-              onChange={(e) => setAssignTo(e.target.value)}
-              required
-              className="w-full py-2 px-4 rounded-xl border border-gray-700 bg-[#262626] focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-            >
-              <option className="text-gray-400" value="">Select Employee</option>
-              {userData.map((user, idx) => (
-                <option className="text-gray-300" key={idx} value={user.firstname}>
-                  {user.firstname}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Category</label>
-            <input
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              type="text"
-              placeholder="e.g. Design / Development"
-              className="w-full py-2 px-4 rounded-xl border border-gray-700 bg-[#262626] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+    <div className="p-5 bg-white/10 backdrop-blur-md rounded-xl shadow-lg border border-white/20 text-white">
+      <h2 className="text-2xl font-bold mb-4">Create New Task</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="title" className="block text-sm font-medium text-gray-300">Task Title</label>
+          <input
+            type="text"
+            id="title"
+            className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            value={taskTitle}
+            onChange={(e) => setTaskTitle(e.target.value)}
+            required
+          />
         </div>
-
-        {/* Right Side */}
-        <div className="flex flex-col justify-between">
-          <div>
-            <label className="block text-sm font-medium mb-1">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Write task details here..."
-              rows="9"
-              className="w-full p-4 rounded-xl border border-gray-700 bg-[#262626] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="mt-6 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 
-            text-white font-semibold py-3 rounded-full shadow-lg hover:shadow-[0_6px_28px_rgba(0,132,255,0.4)] 
-            transition-all duration-300 ease-in-out"
-          >
-            🚀 Create Task
-          </button>
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium text-gray-300">Description</label>
+          <textarea
+            id="description"
+            rows="3"
+            className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            value={taskDescription}
+            onChange={(e) => setTaskDescription(e.target.value)}
+            required
+          ></textarea>
         </div>
+        <div>
+          <label htmlFor="category" className="block text-sm font-medium text-gray-300">Category</label>
+          <input
+            type="text"
+            id="category"
+            className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            value={taskCategory}
+            onChange={(e) => setTaskCategory(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="date" className="block text-sm font-medium text-gray-300">Due Date</label>
+          <input
+            type="date"
+            id="date"
+            className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            value={taskDate}
+            onChange={(e) => setTaskDate(e.target.value)}
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Add Task
+        </button>
       </form>
     </div>
   );

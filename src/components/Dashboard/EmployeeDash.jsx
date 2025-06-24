@@ -2,24 +2,20 @@ import React, { useEffect, useState } from 'react';
 import Header from '../other/Header';
 import TaskListNum from '../other/TaskListNum';
 import TaskList from '../TaskList/TaskList';
+import LocalStorage from '../../utils/LocalStorage'; // Import the new utility
 
 const EmployeeDash = (props) => {
-  // Debug log for props received
   console.log("EmployeeDash: Component rendering. props.data received:", props.data);
 
-  // Initialize taskData with props.data or a default empty object
   const [taskData, setTaskData] = useState(props.data || {});
 
   useEffect(() => {
-    // Debug log for useEffect when props.data changes
     console.log("EmployeeDash useEffect: props.data changed to:", props.data);
     setTaskData(props.data || {});
   }, [props.data]);
 
-  // Debug log for taskData state
   console.log("EmployeeDash: Current taskData state:", taskData);
 
-  // Initial check: if essential data for the dashboard is not yet available, show a loading message
   if (!taskData || Object.keys(taskData).length === 0) {
     console.log("EmployeeDash: Displaying 'Loading dashboard...' because taskData is empty or null.");
     return <div className="text-white p-10">Loading dashboard...</div>;
@@ -31,15 +27,16 @@ const EmployeeDash = (props) => {
 
 
   const updateLocalStorageAndState = (updatedUser) => {
-    const allUsers = JSON.parse(localStorage.getItem("userData")) || [];
+    // Get all users using utility, default to empty array if none
+    const allUsers = LocalStorage.getItem("userData") || [];
     const updatedUsers = allUsers.map(user =>
       user.email === updatedUser.email ? updatedUser : user
     );
 
-    localStorage.setItem("userData", JSON.stringify(updatedUsers));
-    localStorage.setItem("loggedInUser", JSON.stringify({ role: "employee", data: updatedUser }));
+    LocalStorage.setItem("userData", updatedUsers); // Set all users via utility
+    LocalStorage.setItem("loggedInUser", { role: "employee", data: updatedUser }); // Set logged in user via utility
 
-    setTaskData(updatedUser); // Update local state
+    setTaskData(updatedUser);
     console.log("EmployeeDash: Local storage and state updated with new user data:", updatedUser);
   };
 
