@@ -1,4 +1,5 @@
-import React from 'react'
+import React from 'react';
+// REMOVED: import AdminDash from "../components/Dashboard/AdminDash"; <-- This line was incorrect
 
 const NewTask = ({ data, setData }) => { // Added setData prop as it was present in TaskList
 

@@ -46,7 +46,7 @@ const TaskListNum = ({ data }) => {
   const tasks = Array.isArray(data) ? data : [];
 
   // Calculate task counts based on the 'tasks' array
-  const taskCounts = {
+  const taskCount = {
     newTask: tasks.filter(task => task && task.newTask).length,
     completed: tasks.filter(task => task && task.completed).length,
     active: tasks.filter(task => task && task.active).length,
@@ -60,28 +60,28 @@ const TaskListNum = ({ data }) => {
       animate="visible"
     >
       <TaskCard
-        count={taskCounts.newTask}
+        count={taskCount.newTask}
         label="New Task"
         icon={ClipboardList}
         tooltipText="Tasks that have been recently created and are waiting to be accepted."
         bgGradient="bg-gradient-to-r from-rose-500 to-pink-500"
       />
       <TaskCard
-        count={taskCounts.completed}
+        count={taskCount.completed}
         label="Completed"
         icon={CheckCheck}
         tooltipText="Tasks that have been successfully finished."
         bgGradient="bg-gradient-to-r from-emerald-500 to-teal-500"
       />
       <TaskCard
-        count={taskCounts.active}
+        count={taskCount.active}
         label="Active"
         icon={Clock}
         tooltipText="Tasks currently being worked on."
         bgGradient="bg-gradient-to-r from-sky-500 to-blue-500"
       />
       <TaskCard
-        count={taskCounts.failed}
+        count={taskCount.failed}
         label="Failed"
         icon={Ban}
         tooltipText="Tasks that were not completed successfully."

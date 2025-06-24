@@ -21,8 +21,8 @@ function AppWrapper() {
       setLoggedInUserData(parsed.data);
     }
 
-    if (!storedUsers) {
-      // Initialize default employees if no user data is found
+    // UPDATED: Initialize default employees if no user data is found OR if it's an empty array
+    if (!storedUsers || JSON.parse(storedUsers).length === 0) {
       const defaultEmployees = [
         {
           id: 1,
@@ -42,6 +42,32 @@ function AppWrapper() {
             {
               title: 'Team Meeting',
               description: 'Attend the weekly team sync.',
+              newTask: false,
+              active: true,
+              completed: false,
+              failed: false
+            }
+          ]
+        },
+        // ADDED: Second default employee for better testing and data consistency
+        {
+          id: 2,
+          firstname: 'Bhavya',
+          email: 'bhavya@example.com',
+          password: '67890',
+          role: 'employee',
+          tasks: [
+            {
+              title: 'Client Call',
+              description: 'Discuss project progress with client.',
+              newTask: true,
+              active: false,
+              completed: false,
+              failed: false
+            },
+            {
+              title: 'Review Code',
+              description: 'Review pull requests for team project.',
               newTask: false,
               active: true,
               completed: false,
@@ -77,9 +103,9 @@ function AppWrapper() {
         localStorage.setItem('loggedInUser', JSON.stringify({ role: 'employee', data: employee }));
         navigate('/employee'); // Navigate to employee dashboard
       } else {
-        // Using a custom modal/message for alerts in a real app, but for now:
-        console.warn('Invalid Credentials entered.'); // Log to console instead of alert()
-        // You could also update a state to show an error message on the UI
+        // Using console.warn instead of alert()
+        console.warn('Invalid Credentials: User not found or incorrect password.');
+        // In a real app, you'd update a state to show an error message on the UI
       }
     }
   };
@@ -112,8 +138,8 @@ function AppWrapper() {
 }
 
 const App = () => (
-  // HashRouter doesn't require a basename, as the hash itself handles subpaths
-  <Router> 
+  // HashRouter does not need a basename, as the hash itself handles subpaths
+  <Router>
     <AppWrapper />
   </Router>
 );
