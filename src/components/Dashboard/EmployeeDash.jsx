@@ -4,25 +4,31 @@ import TaskListNum from '../other/TaskListNum';
 import TaskList from '../TaskList/TaskList';
 
 const EmployeeDash = (props) => {
+  // Debug log for props received
+  console.log("EmployeeDash: Component rendering. props.data received:", props.data);
+
   // Initialize taskData with props.data or a default empty object
-  // This ensures taskData is always an object, preventing 'Cannot read properties of undefined' on taskData itself.
   const [taskData, setTaskData] = useState(props.data || {});
 
   useEffect(() => {
-    // Update taskData state when props.data changes
-    // Ensure props.data is not null/undefined before setting
+    // Debug log for useEffect when props.data changes
+    console.log("EmployeeDash useEffect: props.data changed to:", props.data);
     setTaskData(props.data || {});
   }, [props.data]);
 
+  // Debug log for taskData state
+  console.log("EmployeeDash: Current taskData state:", taskData);
+
   // Initial check: if essential data for the dashboard is not yet available, show a loading message
-  // This is a good guard, but the nested property access (like .tasks) needs more specific guards
   if (!taskData || Object.keys(taskData).length === 0) {
+    console.log("EmployeeDash: Displaying 'Loading dashboard...' because taskData is empty or null.");
     return <div className="text-white p-10">Loading dashboard...</div>;
   }
 
   // Ensure tasks array is always present, even if empty
-  // This prevents errors when trying to call .map() on undefined
   const tasks = Array.isArray(taskData.tasks) ? taskData.tasks : [];
+  console.log("EmployeeDash: Derived 'tasks' array:", tasks);
+
 
   const updateLocalStorageAndState = (updatedUser) => {
     const allUsers = JSON.parse(localStorage.getItem("userData")) || [];
@@ -34,42 +40,41 @@ const EmployeeDash = (props) => {
     localStorage.setItem("loggedInUser", JSON.stringify({ role: "employee", data: updatedUser }));
 
     setTaskData(updatedUser); // Update local state
+    console.log("EmployeeDash: Local storage and state updated with new user data:", updatedUser);
   };
 
   const handleAcceptTask = (taskToAccept) => {
-    // Ensure tasks array exists before mapping
+    console.log("EmployeeDash: Accepting task:", taskToAccept.title);
     const currentTasks = Array.isArray(taskData.tasks) ? taskData.tasks : [];
     const updatedTasks = currentTasks.map(task =>
-      // Add a check: ensure 'task' itself is not null/undefined before accessing its properties
       task && task.title === taskToAccept.title
         ? { ...task, newTask: false, active: true }
         : task
     );
-
     const updatedUser = { ...taskData, tasks: updatedTasks };
     updateLocalStorageAndState(updatedUser);
   };
 
   const handleCompleteTask = (taskToComplete) => {
+    console.log("EmployeeDash: Completing task:", taskToComplete.title);
     const currentTasks = Array.isArray(taskData.tasks) ? taskData.tasks : [];
     const updatedTasks = currentTasks.map(task =>
       task && task.title === taskToComplete.title
         ? { ...task, active: false, completed: true }
         : task
     );
-
     const updatedUser = { ...taskData, tasks: updatedTasks };
     updateLocalStorageAndState(updatedUser);
   };
 
   const handleFailTask = (taskToFail) => {
+    console.log("EmployeeDash: Failing task:", taskToFail.title);
     const currentTasks = Array.isArray(taskData.tasks) ? taskData.tasks : [];
     const updatedTasks = currentTasks.map(task =>
       task && task.title === taskToFail.title
         ? { ...task, active: false, failed: true }
         : task
     );
-
     const updatedUser = { ...taskData, tasks: updatedTasks };
     updateLocalStorageAndState(updatedUser);
   };
@@ -96,12 +101,10 @@ const EmployeeDash = (props) => {
       </div>
 
       <div className="relative z-10">
-        {/* Using optional chaining for userName to prevent errors if taskData or name is undefined */}
         <Header userName={taskData?.firstname || "Employee"} changeUser={props.changeUser} />
-        {/* Pass the tasks array, not the whole taskData object, if TaskListNum only needs tasks */}
         <TaskListNum data={tasks} />
         <TaskList
-          data={tasks} // Pass the defensively checked tasks array
+          data={tasks}
           handleAcceptTask={handleAcceptTask}
           onCompleteTask={handleCompleteTask}
           onFailTask={handleFailTask}
