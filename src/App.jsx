@@ -10,7 +10,7 @@ function AppWrapper() {
   const [userData, setUserData] = useState([]);
   const navigate = useNavigate();
 
-  // Define default employees data structure (ensure it includes category and date)
+  // Define default employees data structure
   const defaultEmployees = [
     {
       id: 1,
@@ -74,7 +74,7 @@ function AppWrapper() {
 
   useEffect(() => {
     // Debug log for useEffect start
-    console.log("AppWrapper useEffect: Initializing from localStorage...");
+    console.log("AppWrapper useEffect: Initializing from localStorage..."); // Your debug log
 
     let initialUserData = [];
     let initialLoggedInUser = null;
@@ -86,19 +86,19 @@ function AppWrapper() {
         const parsed = JSON.parse(storedUsersString);
         if (Array.isArray(parsed) && parsed.every(u => typeof u === 'object' && 'email' in u && 'tasks' in u)) {
           initialUserData = parsed;
-          console.log("AppWrapper useEffect: Parsed userData successfully.", initialUserData);
+          console.log("AppWrapper useEffect: Parsed userData successfully.", initialUserData); // Your debug log
         } else {
-          console.warn('AppWrapper useEffect: Invalid userData format in localStorage. Resetting to default.');
+          console.warn('AppWrapper useEffect: Invalid userData format in localStorage. Resetting to default.'); // Your debug log
           localStorage.removeItem('userData');
         }
       }
     } catch (e) {
-      console.error('AppWrapper useEffect: Error parsing userData from localStorage. Resetting.', e);
+      console.error('AppWrapper useEffect: Error parsing userData from localStorage. Resetting.', e); // Your debug log
       localStorage.removeItem('userData');
     }
 
     if (initialUserData.length === 0) {
-      console.log("AppWrapper useEffect: userData empty or not found. Setting default employees.");
+      console.log("AppWrapper useEffect: userData empty or not found. Setting default employees."); // Your debug log
       localStorage.setItem('userData', JSON.stringify(defaultEmployees));
       initialUserData = defaultEmployees;
     }
@@ -111,40 +111,37 @@ function AppWrapper() {
         const parsed = JSON.parse(storedUserString);
         if (typeof parsed === 'object' && 'role' in parsed && 'data' in parsed) {
           initialLoggedInUser = parsed;
-          console.log("AppWrapper useEffect: Parsed loggedInUser successfully.", initialLoggedInUser);
+          console.log("AppWrapper useEffect: Parsed loggedInUser successfully.", initialLoggedInUser); // Your debug log
         } else {
-          console.warn('AppWrapper useEffect: Invalid loggedInUser format in localStorage. Resetting.');
+          console.warn('AppWrapper useEffect: Invalid loggedInUser format in localStorage. Resetting.'); // Your debug log
           localStorage.removeItem('loggedInUser');
         }
       }
     } catch (e) {
-      console.error('AppWrapper useEffect: Error parsing loggedInUser from localStorage. Resetting.', e);
+      console.error('AppWrapper useEffect: Error parsing loggedInUser from localStorage. Resetting.', e); // Your debug log
       localStorage.removeItem('loggedInUser');
     }
 
     if (initialLoggedInUser) {
       setUser(initialLoggedInUser.role);
       setLoggedInUserData(initialLoggedInUser.data);
-      console.log("AppWrapper useEffect: Setting loggedInUserData state to:", initialLoggedInUser.data);
+      console.log("AppWrapper useEffect: Setting loggedInUserData state to:", initialLoggedInUser.data); // Your debug log
     } else {
       setUser(null);
       setLoggedInUserData(null);
-      console.log("AppWrapper useEffect: loggedInUser not found or invalid, states set to null.");
+      console.log("AppWrapper useEffect: loggedInUser not found or invalid, states set to null."); // Your debug log
     }
-
-    // Debug log for useEffect end
-    console.log("AppWrapper useEffect: Initialization complete. Current loggedInUserData state:", loggedInUserData); // This will show previous state due to closure
 
   }, []); // Empty dependency array means this runs once on component mount
 
   const handleLogin = (email, password) => {
-    console.log("handleLogin: Attempting login for email:", email);
+    console.log("handleLogin: Attempting login for email:", email); // Your debug log
     if (email === 'admin@example.com' && password === '12345') {
       const adminData = { name: 'Admin', email };
       setUser('admin');
       setLoggedInUserData(adminData);
       localStorage.setItem('loggedInUser', JSON.stringify({ role: 'admin', data: adminData }));
-      console.log("handleLogin: Admin logged in. Setting state and localStorage:", adminData);
+      console.log("handleLogin: Admin logged in. Setting state and localStorage:", adminData); // Your debug log
       navigate('/admin');
     } else {
       const employee = userData.find(
@@ -154,16 +151,16 @@ function AppWrapper() {
         setUser('employee');
         setLoggedInUserData(employee);
         localStorage.setItem('loggedInUser', JSON.stringify({ role: 'employee', data: employee }));
-        console.log("handleLogin: Employee logged in. Setting state and localStorage:", employee);
+        console.log("handleLogin: Employee logged in. Setting state and localStorage:", employee); // Your debug log
         navigate('/employee');
       } else {
-        console.warn('Invalid Credentials: User not found or incorrect password.');
+        console.warn('Invalid Credentials: User not found or incorrect password.'); // Your debug log
       }
     }
   };
 
   const handleLogout = () => {
-    console.log("handleLogout: Logging out user.");
+    console.log("handleLogout: Logging out user."); // Your debug log
     setUser(null);
     setLoggedInUserData(null);
     localStorage.removeItem('loggedInUser');
@@ -171,13 +168,12 @@ function AppWrapper() {
   };
 
   // Debug log for AppWrapper component rendering
-  console.log("AppWrapper Render Cycle: Current loggedInUserData state passed to children:", loggedInUserData);
+  console.log("AppWrapper Render Cycle: Current loggedInUserData state passed to children:", loggedInUserData); // Your debug log
 
   return (
     <Routes>
-      {/* Temporary H1 to see if this specific change goes live */}
-      <h1 style={{color: 'red', textAlign: 'center'}}>TEST VERSION A-1</h1>
-      {/* End of temporary additions */}
+      {/* REMOVED THE TEMPORARY H1 TAG HERE */}
+      {/* <h1 style={{color: 'red', textAlign: 'center'}}>TEST VERSION A-1</h1> */}
 
       <Route path="/" element={<Login handleLogin={handleLogin} />} />
       <Route
