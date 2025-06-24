@@ -4,59 +4,66 @@ import CreateTask from '../other/CreateTask';
 import AllTask from '../other/AllTask'; // Ensure this path is correct
 
 const AdminDash = (props) => {
-  // Generate an array of particle elements with random initial positions and delays
-  // Adjust the number of particles (e.g., 50, 100, 200) based on desired density and performance
-  const numberOfParticles = 80;
-  const particles = Array.from({ length: numberOfParticles }).map((_, i) => (
+  // Generate some "light points" for the grid intersections or random glow
+  const numberOfLights = 30; // Fewer, but more noticeable
+  const pulsatingLights = Array.from({ length: numberOfLights }).map((_, i) => (
     <div
       key={i}
-      className={`absolute bg-white rounded-full opacity-[0.03] filter blur-sm animate-particle`}
+      className={`absolute bg-cyan-400 rounded-full animate-pulse-light mix-blend-screen`}
       style={{
-        width: `${Math.random() * 3 + 1}px`, // Random size between 1px and 4px
-        height: `${Math.random() * 3 + 1}px`,
+        width: `${Math.random() * 8 + 4}px`, // Size 4px-12px
+        height: `${Math.random() * 8 + 4}px`,
         top: `${Math.random() * 100}%`,
         left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 20}s`, // Random delay up to 20 seconds
-        animationDuration: `${Math.random() * 40 + 20}s`, // Random duration between 20s and 60s
+        animationDelay: `${Math.random() * 5}s`, // Random delay up to 5s
+        animationDuration: `${Math.random() * 5 + 3}s`, // Pulse duration 3s-8s
+        filter: `blur(${Math.random() * 5 + 2}px)`, // Random blur 2px-7px
+        opacity: `${Math.random() * 0.2 + 0.3}` // Opacity between 0.3 and 0.5
       }}
     />
   ));
 
   return (
-    <div className="relative min-h-screen p-10 text-white bg-gradient-to-br from-gray-950 via-gray-900 to-black overflow-y-auto">
-      {/* Background container for particles */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        {particles}
+    <div className="relative min-h-screen p-10 text-white overflow-y-auto bg-gray-950">
+      {/* Background layer for the animated grid and pulsating lights */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none animated-tech-grid">
+        {pulsatingLights}
       </div>
 
-      {/* NEW CSS ANIMATIONS for the subtle particle effect */}
+      {/* NEW CSS for the Tech Grid and Pulsating Lights */}
       <style>{`
-        /* Keyframe animation for gentle particle drift and shimmer */
-        @keyframes particle {
-          0% {
-            transform: translate(0, 0) scale(1);
-            opacity: 0.03;
-          }
-          25% {
-            transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) scale(${Math.random() * 0.5 + 0.8});
-            opacity: ${Math.random() * 0.05 + 0.02}; /* Subtle shimmer */
+        .animated-tech-grid {
+          /* Grid Pattern */
+          background-image: 
+            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+          background-size: 40px 40px; /* Adjust grid cell size */
+          background-position: 0 0;
+          animation: grid-pan 60s linear infinite; /* Slow, continuous pan */
+        }
+
+        /* Keyframes for grid panning */
+        @keyframes grid-pan {
+          from { background-position: 0 0; }
+          to { background-position: 40px 40px; } /* Shifts one grid cell to repeat */
+        }
+
+        /* Keyframes for light pulsing */
+        @keyframes pulse-light {
+          0%, 100% {
+            transform: scale(1);
+            opacity: var(--initial-opacity); /* Use initial random opacity */
           }
           50% {
-            transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) scale(${Math.random() * 0.5 + 0.8});
-            opacity: 0.03;
-          }
-          75% {
-            transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) scale(${Math.random() * 0.5 + 0.8});
-            opacity: ${Math.random() * 0.05 + 0.02};
-          }
-          100% {
-            transform: translate(0, 0) scale(1);
-            opacity: 0.03;
+            transform: scale(1.5); /* Grow larger */
+            opacity: var(--pulsed-opacity, 0.6); /* Become brighter */
           }
         }
 
-        .animate-particle {
-          animation: particle var(--animation-duration) ease-in-out infinite alternate;
+        .animate-pulse-light {
+          animation: pulse-light var(--animation-duration) ease-in-out infinite alternate;
+          /* Pass random opacity values from JS to CSS variables for keyframes */
+          /* These will be set by inline style={{opacity: ...}} directly */
         }
       `}</style>
 
