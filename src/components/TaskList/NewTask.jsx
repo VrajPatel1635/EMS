@@ -1,7 +1,7 @@
-import React from 'react';
-// REMOVED: import AdminDash from "../components/Dashboard/AdminDash"; <-- This line was incorrect
+import React from 'react'
 
-const NewTask = ({ data, setData }) => { // Added setData prop as it was present in TaskList
+// Changed prop from `setData` to `onAcceptTask`
+const NewTask = ({ data, onAcceptTask }) => {
 
     // Add a check to ensure 'data' exists before attempting to access its properties
     // If data is null or undefined, render a fallback or an empty div
@@ -26,15 +26,10 @@ const NewTask = ({ data, setData }) => { // Added setData prop as it was present
                 {/* Add fallback text if data.description is undefined */}
                 <p className='text-sm mt-2'>{data.description || 'No Description'}</p>
                 <div className='mt-4'>
-                    {/* The `Accept Task` button likely needs an onClick handler that calls a prop
-                        from TaskList and then EmployeeDash to handle accepting the task.
-                        Currently, it's just a button.
-                        Assuming `handleAcceptTask` from EmployeeDash is meant to be passed down.
-                        For now, I'll add a placeholder console log.
-                    */}
+                    {/* Now call onAcceptTask with the current task data */}
                     <button
                         className='cursor-pointer mt-12 ml-15 h-12 w-[50%] bg-sky-500 rounded-lg'
-                        onClick={() => console.log('Accept Task clicked for:', data.title)} // Placeholder
+                        onClick={() => onAcceptTask(data)} // Call the function passed from parent
                     >
                         Accept Task
                     </button>

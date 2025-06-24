@@ -2,7 +2,8 @@ import React from 'react';
 import AcceptTask from './AcceptTask';
 import NewTask from './NewTask';
 import CompleteTask from './CompleteTask';
-import FailedTask from './FailedTask';
+// Corrected import path for FailedTask
+import FailedTask from './FailedTask.jsx';
 
 // The 'data' prop here is now directly the array of tasks,
 // as passed from EmployeeDash.jsx
@@ -52,7 +53,8 @@ const TaskList = ({ data, handleAcceptTask, onCompleteTask, onFailTask }) => {
         if (elem?.newTask) {
           return (
             <div key={idx} className={commonWrapperClass}>
-              <NewTask data={elem} setData={setData} />
+              {/* Removed setData, PASSED handleAcceptTask as onAcceptTask for NewTask */}
+              <NewTask data={elem} onAcceptTask={handleAcceptTask} />
             </div>
           );
         }
