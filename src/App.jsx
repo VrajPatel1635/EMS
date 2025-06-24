@@ -41,7 +41,7 @@ function AppWrapper() {
 
   const handleLogin = (email, password) => {
     console.log("handleLogin: Attempting login for email:", email, " and password:", password);
-    console.log("handleLogin: Current userData for search:", userData); // Log the userData array
+    console.log("handleLogin: Current userData for search:", userData);
 
     if (email === initialAdminData.email && password === initialAdminData.password) {
       const adminData = { firstname: initialAdminData.firstname, email: initialAdminData.email };
@@ -53,14 +53,19 @@ function AppWrapper() {
     } else {
       const employee = userData.find(
         (e) => {
+          // ULTRA DEBUG LOG: Print the exact values for comparison
+          console.log(`  Comparing: Typed Email="${email.toLowerCase()}" (Type: ${typeof email.toLowerCase()}) vs Employee Email="${e.email.toLowerCase()}" (Type: ${typeof e.email.toLowerCase()})`);
+          console.log(`  Comparing: Typed Password="${password}" (Type: ${typeof password}) vs Employee Password="${e.password}" (Type: ${typeof e.password})`);
+
+
           const emailMatch = e.email.toLowerCase() === email.toLowerCase();
           const passwordMatch = e.password === password;
-          console.log(`  Checking employee: ${e.email}. Email match: ${emailMatch}, Password match: ${passwordMatch}`);
+          console.log(`  Checking employee: ${e.email}. Email match: ${emailMatch}, Password match: ${passwordMatch}. Overall Match: ${emailMatch && passwordMatch}`);
           return emailMatch && passwordMatch;
         }
       );
 
-      console.log("handleLogin: Result of employee search:", employee); // Log the result of find
+      console.log("handleLogin: Result of employee search:", employee);
 
       if (employee) {
         setUser('employee');
