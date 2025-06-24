@@ -2,54 +2,38 @@
 
 import React, { createContext, useState, useEffect } from 'react';
 import LocalStorage from '../utils/LocalStorage';
+import { initialEmployeesData } from '../data/InitialData'; // Import initial employee data here
 
 export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-  const [userData, setUserData] = useState([]);
-  const [loading, setLoading] = useState(true); // Keep this if you want a loading state
+  const [allEmployeesData, setAllEmployeesData] = useState([]); // This will hold the ARRAY of all employees
 
   useEffect(() => {
-    // Attempt to load user from local storage on initial mount
-    const storedUser = LocalStorage.getItem('loggedInUser');
-    // FIX: Add explicit null check before checking typeof or properties
-    if (storedUser !== null && typeof storedUser === 'object' && 'role' in storedUser && 'data' in storedUser) {
-      setUserData(LocalStorage.getItem('userData') || []); // Also ensure userData is loaded here if AuthProvider is central
-      // You likely want to set the actual logged in user data somewhere here too
-      // For example, if AuthProvider is also managing the *currently logged in user*
-      // It depends on whether App.jsx or AuthProvider is the primary manager of loggedInUserData
-      // For now, I'll assume AuthProvider's user state is for Auth context.
-      // setUser(storedUser); // Uncomment if AuthProvider manages the logged in user state
-      console.log("AuthProvider: Restored user from localStorage:", storedUser);
+    console.log("AuthProvider useEffect: Initializing allEmployeesData from localStorage...");
+    const storedEmployees = LocalStorage.getItem('userData'); // Key used to store all employee data
+
+    if (Array.isArray(storedEmployees) && storedEmployees.every(u => typeof u === 'object' && 'email' in u && 'tasks' in u)) {
+      setAllEmployeesData(storedEmployees);
+      console.log("AuthProvider useEffect: Loaded allEmployeesData from localStorage:", storedEmployees);
     } else {
-      console.warn("AuthProvider: Invalid user data in localStorage or null, clearing.");
-      LocalStorage.removeItem('loggedInUser');
-      // If AuthProvider manages logged in user, also set it to null here
-      // setUser(null);
+      console.warn("AuthProvider useEffect: Invalid or no allEmployeesData in localStorage. Setting default initialEmployeesData.");
+      LocalStorage.setItem('userData', initialEmployeesData); // Set default via utility
+      setAllEmployeesData(initialEmployeesData);
     }
-    setLoading(false); // Finished initial loading check
   }, []);
 
-  const updateUserData = (updatedData) => {
-    setUserData(updatedData);
-    LocalStorage.setItem('userData', updatedData);
-    console.log("AuthProvider: Updating userData in state and localStorage:", updatedData);
+  const updateAllEmployeesData = (updatedData) => {
+    console.log("AuthProvider: Updating allEmployeesData in state and localStorage:", updatedData);
+    setAllEmployeesData(updatedData);
+    LocalStorage.setItem('userData', updatedData); // Save updated array to localStorage
   };
 
-  const authContextValue = {
-    userData, // Expose userData from AuthProvider
-    updateUserData, // Expose the updater function
-    // user, // If AuthProvider manages current logged in user
-    // loading, // If you use a loading state
-  };
-
-  if (loading) {
-    // This part depends on if you're using AuthProvider for login loading too
-    // return <div className="text-white p-10">Authenticating...</div>;
-  }
+  // The context value will provide the array of all employees and the function to update it
+  const contextValue = [allEmployeesData, updateAllEmployeesData];
 
   return (
-    <AuthContext.Provider value={authContextValue}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
