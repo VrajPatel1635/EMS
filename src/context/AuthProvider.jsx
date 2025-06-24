@@ -1,31 +1,55 @@
 // src/context/AuthProvider.jsx
 
 import React, { createContext, useState, useEffect } from 'react';
-// Corrected import: Import the default 'LocalStorage' object, not a named export 'getLocalStorage'
 import LocalStorage from '../utils/LocalStorage';
 
 export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-  const [userData, setUserData] = useState([]); // This state will now hold employee data within AuthProvider
+  const [userData, setUserData] = useState([]);
+  const [loading, setLoading] = useState(true); // Keep this if you want a loading state
 
   useEffect(() => {
-    // Use the LocalStorage utility's getItem method
-    const employees = LocalStorage.getItem('userData'); // 'userData' is the key we use for all employee data
-    setUserData(employees || []); // Initialize with fetched data or an empty array
-    console.log("AuthProvider: Initializing userData from localStorage:", employees);
+    // Attempt to load user from local storage on initial mount
+    const storedUser = LocalStorage.getItem('loggedInUser');
+    // FIX: Add explicit null check before checking typeof or properties
+    if (storedUser !== null && typeof storedUser === 'object' && 'role' in storedUser && 'data' in storedUser) {
+      setUserData(LocalStorage.getItem('userData') || []); // Also ensure userData is loaded here if AuthProvider is central
+      // You likely want to set the actual logged in user data somewhere here too
+      // For example, if AuthProvider is also managing the *currently logged in user*
+      // It depends on whether App.jsx or AuthProvider is the primary manager of loggedInUserData
+      // For now, I'll assume AuthProvider's user state is for Auth context.
+      // setUser(storedUser); // Uncomment if AuthProvider manages the logged in user state
+      console.log("AuthProvider: Restored user from localStorage:", storedUser);
+    } else {
+      console.warn("AuthProvider: Invalid user data in localStorage or null, clearing.");
+      LocalStorage.removeItem('loggedInUser');
+      // If AuthProvider manages logged in user, also set it to null here
+      // setUser(null);
+    }
+    setLoading(false); // Finished initial loading check
   }, []);
 
   const updateUserData = (updatedData) => {
     setUserData(updatedData);
-    // Use the LocalStorage utility's setItem method
-    LocalStorage.setItem('userData', updatedData); // Update localStorage via utility
+    LocalStorage.setItem('userData', updatedData);
     console.log("AuthProvider: Updating userData in state and localStorage:", updatedData);
   };
 
-  // The AuthContext value should expose the userData and the updater function
+  const authContextValue = {
+    userData, // Expose userData from AuthProvider
+    updateUserData, // Expose the updater function
+    // user, // If AuthProvider manages current logged in user
+    // loading, // If you use a loading state
+  };
+
+  if (loading) {
+    // This part depends on if you're using AuthProvider for login loading too
+    // return <div className="text-white p-10">Authenticating...</div>;
+  }
+
   return (
-    <AuthContext.Provider value={[userData, updateUserData]}>
+    <AuthContext.Provider value={authContextValue}>
       {children}
     </AuthContext.Provider>
   );

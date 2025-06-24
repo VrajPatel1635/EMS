@@ -22,20 +22,23 @@ function AppWrapper() {
       console.log("AppWrapper useEffect: Loaded userData from localStorage.");
     } else {
       console.warn('AppWrapper useEffect: Invalid or no userData in localStorage. Setting default employees.');
-      LocalStorage.setItem('userData', initialEmployeesData); // Use utility with imported data
+      LocalStorage.setItem('userData', initialEmployeesData);
       setUserData(initialEmployeesData);
     }
 
     // Initialize loggedInUser
     const storedLoggedInUser = LocalStorage.getItem('loggedInUser');
-    if (typeof storedLoggedInUser === 'object' && 'role' in storedLoggedInUser && 'data' in storedLoggedInUser) {
-      setUser(storedLoggedInUser.role);
-      setLoggedInUserData(storedLoggedInUser.data);
+    // FIX: Add explicit null check before checking 'typeof' or 'in' operator
+    if (storedLoggedInUser !== null && typeof storedLoggedInUser === 'object' && 'role' in storedLoggedInUser && 'data' in storedLoggedInUser) {
+      initialLoggedInUser = storedLoggedInUser; // Assign to initialLoggedInUser
+      setUser(initialLoggedInUser.role);
+      setLoggedInUserData(initialLoggedInUser.data);
       console.log("AppWrapper useEffect: Loaded loggedInUser from localStorage.");
     } else {
       console.warn('AppWrapper useEffect: No valid loggedInUser in localStorage. User not logged in.');
       setUser(null);
       setLoggedInUserData(null);
+      LocalStorage.removeItem('loggedInUser'); // Ensure invalid data is removed
     }
   }, []);
 
@@ -79,9 +82,6 @@ function AppWrapper() {
 
   return (
     <Routes>
-      {/* Test H1 for deployment verification - remove after confirmed */}
-      {/* <h1 style={{color: 'gold', textAlign: 'center', fontSize: '60px', textShadow: '2px 2px 5px black'}}>ULTIMATE SUCCESS TEST - 2025</h1> */}
-
       <Route path="/" element={<Login handleLogin={handleLogin} />} />
       <Route
         path="/admin"
