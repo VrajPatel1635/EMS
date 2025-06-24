@@ -27,7 +27,7 @@ const Header = ({ userName, changeUser }) => {
         className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-rose-700 
                    text-white font-semibold rounded-lg shadow-md
                    hover:from-red-700 hover:to-rose-800 
-                   hover:shadow-xl hover:scale-105 
+                   hover:shadow-xl hover:scale-105
                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-gray-900
                    transition-all duration-300 ease-in-out active:scale-95"
       >
