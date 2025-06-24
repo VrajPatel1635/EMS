@@ -3,49 +3,46 @@ import { HashRouter as Router, Routes, Route, useNavigate } from 'react-router-d
 import Login from './components/Auth/Login.jsx';
 import AdminDash from './components/Dashboard/AdminDash';
 import EmployeeDash from './components/Dashboard/EmployeeDash';
-import LocalStorage from './utils/LocalStorage'; // Import the generic utility
-import { initialEmployeesData, initialAdminData } from './data/InitialData'; // Import your initial data
+import LocalStorage from './utils/LocalStorage';
+import { initialEmployeesData, initialAdminData } from './data/InitialData';
 
 function AppWrapper() {
   const [user, setUser] = useState(null);
   const [loggedInUserData, setLoggedInUserData] = useState(null);
-  const [userData, setUserData] = useState([]); // This will hold all employee data
+  const [userData, setUserData] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     console.log("AppWrapper useEffect: Initializing data...");
 
-    // Initialize userData (all employees)
     const storedUsers = LocalStorage.getItem('userData');
     if (Array.isArray(storedUsers) && storedUsers.every(u => typeof u === 'object' && 'email' in u && 'tasks' in u)) {
       setUserData(storedUsers);
-      console.log("AppWrapper useEffect: Loaded userData from localStorage.");
+      console.log("AppWrapper useEffect: Loaded userData from localStorage:", storedUsers);
     } else {
       console.warn('AppWrapper useEffect: Invalid or no userData in localStorage. Setting default employees.');
       LocalStorage.setItem('userData', initialEmployeesData);
       setUserData(initialEmployeesData);
+      console.log("AppWrapper useEffect: Set default initialEmployeesData:", initialEmployeesData);
     }
 
-    // Initialize loggedInUser
     const storedLoggedInUser = LocalStorage.getItem('loggedInUser');
-    // FIX: Add explicit null check before checking 'typeof' or 'in' operator
     if (storedLoggedInUser !== null && typeof storedLoggedInUser === 'object' && 'role' in storedLoggedInUser && 'data' in storedLoggedInUser) {
-      initialLoggedInUser = storedLoggedInUser; // Assign to initialLoggedInUser
-      setUser(initialLoggedInUser.role);
-      setLoggedInUserData(initialLoggedInUser.data);
-      console.log("AppWrapper useEffect: Loaded loggedInUser from localStorage.");
+      setUser(storedLoggedInUser.role);
+      setLoggedInUserData(storedLoggedInUser.data);
+      console.log("AppWrapper useEffect: Loaded loggedInUser from localStorage:", storedLoggedInUser);
     } else {
-      console.warn('AppWrapper useEffect: No valid loggedInUser in localStorage. User not logged in.');
+      console.warn('AppWrapper useEffect: No valid loggedInUser in localStorage. User not logged in. Clearing any invalid.');
       setUser(null);
       setLoggedInUserData(null);
-      LocalStorage.removeItem('loggedInUser'); // Ensure invalid data is removed
+      LocalStorage.removeItem('loggedInUser');
     }
   }, []);
 
   const handleLogin = (email, password) => {
-    console.log("handleLogin: Attempting login for email:", email);
+    console.log("handleLogin: Attempting login for email:", email, " and password:", password);
+    console.log("handleLogin: Current userData for search:", userData); // Log the userData array
 
-    // Admin login
     if (email === initialAdminData.email && password === initialAdminData.password) {
       const adminData = { firstname: initialAdminData.firstname, email: initialAdminData.email };
       setUser('admin');
@@ -54,10 +51,17 @@ function AppWrapper() {
       console.log("handleLogin: Admin logged in.", adminData);
       navigate('/admin');
     } else {
-      // Employee login: search in the current userData state
       const employee = userData.find(
-        (e) => e.email.toLowerCase() === email.toLowerCase() && e.password === password
+        (e) => {
+          const emailMatch = e.email.toLowerCase() === email.toLowerCase();
+          const passwordMatch = e.password === password;
+          console.log(`  Checking employee: ${e.email}. Email match: ${emailMatch}, Password match: ${passwordMatch}`);
+          return emailMatch && passwordMatch;
+        }
       );
+
+      console.log("handleLogin: Result of employee search:", employee); // Log the result of find
+
       if (employee) {
         setUser('employee');
         setLoggedInUserData(employee);
