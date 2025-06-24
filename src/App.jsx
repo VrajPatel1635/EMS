@@ -81,6 +81,7 @@ function AppWrapper() {
     } else {
       setUserData(JSON.parse(storedUsers));
     }
+    console.log("App.jsx loaded - Version XYZ");
   }, []); // Empty dependency array means this runs once on component mount
 
   const handleLogin = (email, password) => {
@@ -119,6 +120,9 @@ function AppWrapper() {
 
   return (
     <Routes>
+      {console.log("Rendering AppWrapper")}
+      {/* Temporary H1 to see if this specific change goes live */}
+      <h1 style={{color: 'red', textAlign: 'center'}}>TEST VERSION A-1</h1>
       {/* Route for the login page, accessible at the root or /# */}
       <Route path="/" element={<Login handleLogin={handleLogin} />} />
       {/* Route for the Admin Dashboard */}
