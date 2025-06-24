@@ -4,14 +4,26 @@ import React, { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthProvider'; // Assuming AuthContext path is correct
 
 const CreateTask = () => {
+  // Get all employee data and the update function from AuthContext
   const [allEmployeesData, updateAllEmployeesData] = useContext(AuthContext);
 
+  // Form states
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
   const [taskCategory, setTaskCategory] = useState('');
   const [taskDate, setTaskDate] = useState('');
+  const [assignedToId, setAssignedToId] = useState(''); // New state for selected employee ID
+
+  // Feedback messages
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Clear messages on input change
+  const handleInputChange = (setter) => (e) => {
+    setter(e.target.value);
+    setSuccessMessage('');
+    setErrorMessage('');
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -20,136 +32,177 @@ const CreateTask = () => {
     setSuccessMessage('');
     setErrorMessage('');
 
-    // Basic validation
-    if (!taskTitle || !taskDescription || !taskCategory || !taskDate) {
-      setErrorMessage("Please fill in all task fields.");
+    // Basic validation for all fields, including the new assignedToId
+    if (!taskTitle || !taskDescription || !taskCategory || !taskDate || !assignedToId) {
+      setErrorMessage("Please fill in all task fields and select an employee.");
       return;
     }
 
-    if (allEmployeesData && allEmployeesData.length > 0) {
-      // Create a deep copy of the allEmployeesData array for immutability
-      const updatedAllEmployees = allEmployeesData.map((employee) => {
-        // For demonstration, let's assign to the first employee (ID 1, Aarav)
-        // In a real app, you'd have a selector for the employee.
-        if (employee.id === 1) { // Assuming Aarav is ID 1
-          const newTask = {
-            title: taskTitle,
-            description: taskDescription,
-            category: taskCategory,
-            date: taskDate,
-            newTask: true,
-            active: false,
-            completed: false,
-            failed: false,
-          };
-          return {
-            ...employee,
-            tasks: [...(employee.tasks || []), newTask],
-          };
-        }
-        return employee; // Return other employees unchanged
-      });
-
-      updateAllEmployeesData(updatedAllEmployees);
-      setSuccessMessage(`Task "${taskTitle}" assigned successfully to Aarav!`);
-      console.log("CreateTask: New task created and data updated for employee ID 1 (Aarav).", {
-        title: taskTitle,
-        category: taskCategory,
-      });
-
-      // Clear form fields
-      setTaskTitle('');
-      setTaskDescription('');
-      setTaskCategory('');
-      setTaskDate('');
-
-      // Hide success message after a few seconds
-      setTimeout(() => setSuccessMessage(''), 3000);
-
-    } else {
-      setErrorMessage("No employee data available to assign tasks to. Please ensure employees are loaded.");
-      console.warn("CreateTask: No employee data available to assign tasks to.");
+    if (!allEmployeesData || allEmployeesData.length === 0) {
+      setErrorMessage("No employee data available to assign tasks to.");
+      console.warn("CreateTask: No employee data available.");
+      return;
     }
+
+    // Find the selected employee based on assignedToId
+    const targetEmployee = allEmployeesData.find(emp => String(emp.id) === String(assignedToId));
+
+    if (!targetEmployee) {
+      setErrorMessage("Selected employee not found.");
+      console.error("CreateTask: Selected employee ID not found:", assignedToId);
+      return;
+    }
+
+    // Create a new array of all employees with the target employee's tasks updated immutably
+    const updatedAllEmployees = allEmployeesData.map((employee) => {
+      if (employee.id === targetEmployee.id) {
+        const newTask = {
+          title: taskTitle,
+          description: taskDescription,
+          category: taskCategory,
+          date: taskDate,
+          newTask: true, // Newly created tasks are typically 'newTask'
+          active: false,
+          completed: false,
+          failed: false,
+        };
+        return {
+          ...employee,
+          tasks: [...(employee.tasks || []), newTask], // Append new task to existing tasks
+        };
+      }
+      return employee; // Return other employees unchanged
+    });
+
+    // Use the updateAllEmployeesData function from AuthContext to update the global state and localStorage.
+    updateAllEmployeesData(updatedAllEmployees);
+    setSuccessMessage(`Task "${taskTitle}" assigned to ${targetEmployee.firstname} successfully!`);
+    console.log("CreateTask: New task created and data updated for employee:", targetEmployee.firstname, {
+      title: taskTitle,
+      category: taskCategory,
+    });
+
+    // Clear form fields
+    setTaskTitle('');
+    setTaskDescription('');
+    setTaskCategory('');
+    setTaskDate('');
+    setAssignedToId(''); // Clear selected employee
+
+    // Hide success message after a few seconds
+    setTimeout(() => setSuccessMessage(''), 3000);
   };
 
   return (
-    <div className="p-8 bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-xl border border-gray-700 text-white transform transition-all duration-300 hover:shadow-2xl">
-      <h2 className="text-3xl font-extrabold text-center mb-6 text-indigo-400">Create New Task</h2>
+    // Main container matching the dark, rounded aesthetic
+    <div className="bg-[#121826] p-8 mt-6 rounded-2xl shadow-2xl border border-[#374151] text-white">
+      <h2 className="text-3xl font-extrabold text-center mb-8 text-blue-400">Create New Task</h2>
 
       {/* Conditional Messages */}
       {successMessage && (
-        <div className="bg-green-500 text-white p-3 rounded-lg mb-4 text-center text-sm animate-fade-in-down">
+        <div className="bg-green-600 text-white p-3 rounded-lg mb-4 text-center text-sm animate-fade-in-down">
           {successMessage}
         </div>
       )}
       {errorMessage && (
-        <div className="bg-red-500 text-white p-3 rounded-lg mb-4 text-center text-sm animate-fade-in-down">
+        <div className="bg-red-600 text-white p-3 rounded-lg mb-4 text-center text-sm animate-fade-in-down">
           {errorMessage}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Task Title Input */}
-        <div>
-          <label htmlFor="title" className="block text-sm font-semibold text-gray-200 mb-1">Task Title</label>
-          <input
-            type="text"
-            id="title"
-            className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 ease-in-out"
-            placeholder="e.g., Prepare Q3 Report"
-            value={taskTitle}
-            onChange={(e) => setTaskTitle(e.target.value)}
-            required
-          />
+        {/* Two-column grid layout for form fields */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left Column */}
+          <div className="space-y-6">
+            {/* Task Title Input */}
+            <div>
+              <label htmlFor="taskTitle" className="block text-sm font-semibold text-gray-300 mb-1">Task Title</label>
+              <input
+                type="text"
+                id="taskTitle"
+                className="w-full px-4 py-3 bg-[#1f2937] border border-[#4b5563] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                placeholder="e.g., Create Landing Page"
+                value={taskTitle}
+                onChange={handleInputChange(setTaskTitle)}
+                required
+              />
+            </div>
+
+            {/* Due Date Input */}
+            <div>
+              <label htmlFor="taskDate" className="block text-sm font-semibold text-gray-300 mb-1">Due Date</label>
+              <input
+                type="date" // HTML5 date input
+                id="taskDate"
+                className="w-full px-4 py-3 bg-[#1f2937] border border-[#4b5563] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                value={taskDate}
+                onChange={handleInputChange(setTaskDate)}
+                required
+              />
+            </div>
+
+            {/* Assign To Dropdown */}
+            <div>
+              <label htmlFor="assignedTo" className="block text-sm font-semibold text-gray-300 mb-1">Assign To</label>
+              <select
+                id="assignedTo"
+                className="w-full px-4 py-3 bg-[#1f2937] border border-[#4b5563] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                value={assignedToId}
+                onChange={handleInputChange(setAssignedToId)}
+                required
+              >
+                <option value="">Select Employee</option>
+                {allEmployeesData.map(employee => (
+                  <option key={employee.id} value={employee.id}>
+                    {employee.firstname} ({employee.email})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Category Input */}
+            <div>
+              <label htmlFor="taskCategory" className="block text-sm font-semibold text-gray-300 mb-1">Category</label>
+              <input
+                type="text"
+                id="taskCategory"
+                className="w-full px-4 py-3 bg-[#1f2937] border border-[#4b5563] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                placeholder="e.g., Design / Development"
+                value={taskCategory}
+                onChange={handleInputChange(setTaskCategory)}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Right Column - Description */}
+          <div className="flex flex-col">
+            <label htmlFor="taskDescription" className="block text-sm font-semibold text-gray-300 mb-1">Description</label>
+            <textarea
+              id="taskDescription"
+              rows="10" // Adjust rows to make it taller, flex-grow will fill space
+              className="w-full flex-grow px-4 py-3 bg-[#1f2937] border border-[#4b5563] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y transition duration-200"
+              placeholder="Write task details here..."
+              value={taskDescription}
+              onChange={handleInputChange(setTaskDescription)}
+              required
+            ></textarea>
+          </div>
         </div>
 
-        {/* Task Description Textarea */}
-        <div>
-          <label htmlFor="description" className="block text-sm font-semibold text-gray-200 mb-1">Description</label>
-          <textarea
-            id="description"
-            rows="4"
-            className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y transition duration-200 ease-in-out"
-            placeholder="Detailed description of the task..."
-            value={taskDescription}
-            onChange={(e) => setTaskDescription(e.target.value)}
-            required
-          ></textarea>
-        </div>
-
-        {/* Task Category Input */}
-        <div>
-          <label htmlFor="category" className="block text-sm font-semibold text-gray-200 mb-1">Category</label>
-          <input
-            type="text"
-            id="category"
-            className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 ease-in-out"
-            placeholder="e.g., Finance, Marketing, Development"
-            value={taskCategory}
-            onChange={(e) => setTaskCategory(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* Due Date Input */}
-        <div>
-          <label htmlFor="date" className="block text-sm font-semibold text-gray-200 mb-1">Due Date</label>
-          <input
-            type="date"
-            id="date"
-            className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 ease-in-out"
-            value={taskDate}
-            onChange={(e) => setTaskDate(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* Submit Button */}
+        {/* Submit Button - Spans full width */}
         <button
           type="submit"
-          className="w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-900 transform transition-all duration-300 ease-in-out hover:scale-105 active:scale-95"
+          className="w-full py-4 px-6 mt-8 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold text-lg rounded-xl shadow-lg hover:from-blue-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-[#121826] transform transition-all duration-300 ease-in-out hover:scale-[1.01] active:scale-95 flex items-center justify-center space-x-2"
         >
-          Add Task
+          {/* Icon using inline SVG (Lucide-react is not available in canvas, Font-Awesome not needed for this) */}
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-plus-circle">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 12h8"/>
+            <path d="M12 8v8"/>
+          </svg>
+          <span>Create Task</span>
         </button>
       </form>
 
