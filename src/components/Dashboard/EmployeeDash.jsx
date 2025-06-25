@@ -77,49 +77,96 @@ const EmployeeDash = (props) => {
     updateLocalStorageAndState(updatedUser);
   };
 
+  // --- Raindrop Ripple Animation Logic (Copied from AdminDash) ---
+  const rainbowColors = [
+    '#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3',
+    '#FF0000', '#FF7F00', '#FFFF00',
+  ];
+  const numberOfRaindrops = 80;
+
+  const raindropElements = Array.from({ length: numberOfRaindrops }).map((_, i) => {
+    const colorIndex = i % rainbowColors.length;
+    const color = rainbowColors[colorIndex];
+    const delay = Math.random() * 5;
+    const duration = Math.random() * 3 + 2;
+
+    const topPos = Math.random() * 100;
+    const leftPos = Math.random() * 100;
+
+    return (
+      <div
+        key={i}
+        className="absolute raindrop-ripple-layer"
+        style={{
+          top: `${topPos}vh`,
+          left: `${leftPos}vw`,
+          backgroundColor: color,
+          animationDelay: `${delay}s`,
+          animationDuration: `${duration}s`,
+          '--ripple-color': color,
+        }}
+      ></div>
+    );
+  });
+  // --- End Raindrop Ripple Animation Logic ---
+
   return (
-    <div className="relative min-h-screen h-screen p-10 text-white bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-hidden">
-      {/* NEW ANIMATED BACKGROUND ELEMENTS */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute w-[400px] h-[400px] bg-purple-600 opacity-15 rounded-full mix-blend-multiply filter blur-3xl animate-flow top-[-50px] left-[-100px] animation-delay-0" />
-        <div className="absolute w-[500px] h-[500px] bg-pink-600 opacity-15 rounded-full mix-blend-multiply filter blur-3xl animate-flow top-[100px] left-[calc(50%-250px)] animation-delay-2000" />
-        <div className="absolute w-[350px] h-[350px] bg-blue-600 opacity-15 rounded-full mix-blend-multiply filter blur-3xl animate-flow bottom-[-50px] right-[-100px] animation-delay-4000" />
-        <div className="absolute w-[450px] h-[450px] bg-green-600 opacity-10 rounded-full mix-blend-multiply filter blur-3xl animate-flow top-[calc(50%-225px)] right-[-150px] animation-delay-6000" />
-        <div className="absolute w-[600px] h-[600px] bg-orange-600 opacity-10 rounded-full mix-blend-multiply filter blur-3xl animate-flow bottom-[0px] left-[calc(20%)] animation-delay-8000" />
+    <div className="relative min-h-screen h-screen p-10 text-white bg-gray-950 overflow-y-auto"> {/* Adjusted base background */}
+      {/* Background layer for the animated raindrops */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {raindropElements}
       </div>
 
-      {/* NEW CSS ANIMATIONS */}
+      {/* NEW CSS for the Subtle Raindrop Ripple Animation (Copied from AdminDash) */}
       <style>{`
-        @keyframes flow {
+        .raindrop-ripple-layer {
+          width: 0;
+          height: 0;
+          border-radius: 50%;
+          transform: translate(-50%, -50%);
+          background-image: radial-gradient(circle at center, var(--ripple-color) 0%, transparent 60%);
+          background-repeat: no-repeat;
+          background-size: 100% 100%;
+          opacity: 0;
+          animation-name: raindrop-ripple-anim;
+          animation-iteration-count: infinite;
+          animation-fill-mode: forwards;
+          animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          mix-blend-mode: screen;
+          filter: blur(2px);
+        }
+
+        @keyframes raindrop-ripple-anim {
           0% {
-            transform: translate(0, 0) scale(1) rotate(0deg);
-            opacity: 0.15;
+            width: 0px;
+            height: 0px;
+            opacity: 0;
           }
-          25% {
-            transform: translate(20px, -30px) scale(1.05) rotate(15deg);
-            opacity: 0.2;
+          10% {
+            width: 8px;
+            height: 8px;
+            opacity: 0.8;
+            filter: blur(1px);
           }
-          50% {
-            transform: translate(-10px, 40px) scale(0.95) rotate(-10deg);
-            opacity: 0.1;
+          20% {
+            width: 20px;
+            height: 20px;
+            opacity: 0.6;
+            filter: blur(2px);
           }
-          75% {
-            transform: translate(30px, -20px) scale(1.1) rotate(5deg);
-            opacity: 0.25;
+          70% {
+            width: 100px;
+            height: 100px;
+            opacity: 0;
+            filter: blur(15px);
           }
           100% {
-            transform: translate(0, 0) scale(1) rotate(0deg);
-            opacity: 0.15;
+            width: 0px;
+            height: 0px;
+            opacity: 0;
+            filter: blur(0px);
           }
         }
-        .animate-flow {
-          animation: flow 10s ease-in-out infinite alternate; /* Longer duration, alternate direction */
-        }
-        .animation-delay-0 { animation-delay: 0s; }
-        .animation-delay-2000 { animation-delay: 2s; }
-        .animation-delay-4000 { animation-delay: 4s; }
-        .animation-delay-6000 { animation-delay: 6s; }
-        .animation-delay-8000 { animation-delay: 8s; }
       `}</style>
 
       {/* Main content remains on top */}
@@ -129,8 +176,8 @@ const EmployeeDash = (props) => {
         <TaskList
           data={tasks}
           handleAcceptTask={handleAcceptTask}
-          onCompleteTask={handleCompleteTask}
-          onFailTask={handleFailTask}
+          onCompleteTask={onCompleteTask}
+          onFailTask={onFailTask}
         />
       </div>
     </div>

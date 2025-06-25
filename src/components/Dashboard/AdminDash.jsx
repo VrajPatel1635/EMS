@@ -4,66 +4,104 @@ import CreateTask from '../other/CreateTask';
 import AllTask from '../other/AllTask'; // Ensure this path is correct
 
 const AdminDash = (props) => {
-  // Generate some "light points" for the grid intersections or random glow
-  const numberOfLights = 30; // Fewer, but more noticeable
-  const pulsatingLights = Array.from({ length: numberOfLights }).map((_, i) => (
-    <div
-      key={i}
-      className={`absolute bg-cyan-400 rounded-full animate-pulse-light mix-blend-screen`}
-      style={{
-        width: `${Math.random() * 8 + 4}px`, // Size 4px-12px
-        height: `${Math.random() * 8 + 4}px`,
-        top: `${Math.random() * 100}%`,
-        left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 5}s`, // Random delay up to 5s
-        animationDuration: `${Math.random() * 5 + 3}s`, // Pulse duration 3s-8s
-        filter: `blur(${Math.random() * 5 + 2}px)`, // Random blur 2px-7px
-        opacity: `${Math.random() * 0.2 + 0.3}` // Opacity between 0.3 and 0.5
-      }}
-    />
-  ));
+  const rainbowColors = [
+    '#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3',
+    // Repeating a few colors for smoother cycling with more drops
+    '#FF0000', '#FF7F00', '#FFFF00',
+  ];
+
+  // Increased number of raindrops for a more "raining" feel
+  const numberOfRaindrops = 80; // Adjust this for more/fewer raindrops
+
+  const raindropElements = Array.from({ length: numberOfRaindrops }).map((_, i) => {
+    const colorIndex = i % rainbowColors.length;
+    const color = rainbowColors[colorIndex];
+    // Randomize animation delays and durations for a non-repeating pattern
+    const delay = Math.random() * 5; // Drops appear within 5 seconds
+    const duration = Math.random() * 3 + 2; // Each ripple lasts 2-5 seconds
+
+    // Randomize initial position across the entire screen
+    const topPos = Math.random() * 100; // 0% to 100%
+    const leftPos = Math.random() * 100; // 0% to 100%
+
+    return (
+      <div
+        key={i}
+        className="absolute raindrop-ripple-layer"
+        style={{
+          top: `${topPos}vh`, // Use vh/vw for full screen coverage
+          left: `${leftPos}vw`,
+          backgroundColor: color, // Base color for the ripple
+          animationDelay: `${delay}s`,
+          animationDuration: `${duration}s`,
+          // Pass color as a CSS variable for radial-gradient usage in CSS
+          '--ripple-color': color,
+        }}
+      ></div>
+    );
+  });
 
   return (
-    <div className="relative min-h-screen p-10 text-white overflow-y-auto bg-gray-950">
-      {/* Background layer for the animated grid and pulsating lights */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none animated-tech-grid">
-        {pulsatingLights}
+    // Base dark background and main scrollable container
+    <div className="relative min-h-screen p-10 text-white bg-gray-950 overflow-y-auto">
+      {/* Background layer for the animated raindrops */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {raindropElements}
       </div>
 
-      {/* NEW CSS for the Tech Grid and Pulsating Lights */}
+      {/* NEW CSS for the Subtle Raindrop Ripple Animation */}
       <style>{`
-        .animated-tech-grid {
-          /* Grid Pattern */
-          background-image: 
-            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-          background-size: 40px 40px; /* Adjust grid cell size */
-          background-position: 0 0;
-          animation: grid-pan 60s linear infinite; /* Slow, continuous pan */
+        .raindrop-ripple-layer {
+          /* Initial state is a tiny dot at the specific top/left */
+          width: 0;
+          height: 0;
+          border-radius: 50%;
+          transform: translate(-50%, -50%); /* Center the ripple origin */
+          
+          background-image: radial-gradient(circle at center, var(--ripple-color) 0%, transparent 60%);
+          background-repeat: no-repeat;
+          background-size: 100% 100%; /* The background-size relates to element's size */
+
+          opacity: 0; /* Hidden initially */
+          animation-name: raindrop-ripple-anim;
+          animation-iteration-count: infinite; /* Continuous raining */
+          animation-fill-mode: forwards;
+          animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Natural ripple ease */
+          
+          mix-blend-mode: screen; /* Lighten effect for overlaps with dark background */
+          filter: blur(2px); /* Subtle blur for liquid feel */
         }
 
-        /* Keyframes for grid panning */
-        @keyframes grid-pan {
-          from { background-position: 0 0; }
-          to { background-position: 40px 40px; } /* Shifts one grid cell to repeat */
-        }
-
-        /* Keyframes for light pulsing */
-        @keyframes pulse-light {
-          0%, 100% {
-            transform: scale(1);
-            opacity: var(--initial-opacity); /* Use initial random opacity */
+        @keyframes raindrop-ripple-anim {
+          0% {
+            width: 0px;
+            height: 0px;
+            opacity: 0;
           }
-          50% {
-            transform: scale(1.5); /* Grow larger */
-            opacity: var(--pulsed-opacity, 0.6); /* Become brighter */
+          10% { /* Initial small burst */
+            width: 8px; /* Small visible "drop" size */
+            height: 8px;
+            opacity: 0.8; /* More opaque at impact point */
+            filter: blur(1px);
           }
-        }
-
-        .animate-pulse-light {
-          animation: pulse-light var(--animation-duration) ease-in-out infinite alternate;
-          /* Pass random opacity values from JS to CSS variables for keyframes */
-          /* These will be set by inline style={{opacity: ...}} directly */
+          20% {
+            width: 20px; /* Expands quickly */
+            height: 20px;
+            opacity: 0.6;
+            filter: blur(2px);
+          }
+          70% { /* Expands to max size and fades */
+            width: 100px; /* Max ripple diameter */
+            height: 100px;
+            opacity: 0;
+            filter: blur(15px); /* Increased blur as it dissipates */
+          }
+          100% { /* Reset for next iteration */
+            width: 0px;
+            height: 0px;
+            opacity: 0;
+            filter: blur(0px);
+          }
         }
       `}</style>
 

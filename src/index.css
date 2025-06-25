@@ -9,7 +9,7 @@ html, body, #root {
 }
 .grid-background {
   background-image:
-    linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+    linear-gradient(to right, rgba(221, 215, 215, 0.858) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px);
   background-size: 40px 40px;
 }
@@ -31,7 +31,7 @@ body{
   animation-delay: 4s;
 }
 .animated-bg {
-  background: radial-gradient(circle at 20% 20%, #1e3a8a, #0f172a, #000000);
+  background: radial-gradient(circle at 20% 20%, #3a20ff, #0f172a, #000000);
   background-size: 200% 200%;
   animation: backgroundPulse 15s ease-in-out infinite;
 }
