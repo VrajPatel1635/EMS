@@ -77,7 +77,7 @@ const EmployeeDash = (props) => {
     updateLocalStorageAndState(updatedUser);
   };
 
-  // --- Raindrop Ripple Animation Logic (Copied from AdminDash) ---
+  // --- Raindrop Ripple Animation Logic ---
   const rainbowColors = [
     '#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3',
     '#FF0000', '#FF7F00', '#FFFF00',
@@ -111,13 +111,15 @@ const EmployeeDash = (props) => {
   // --- End Raindrop Ripple Animation Logic ---
 
   return (
-    <div className="relative min-h-screen h-screen p-10 text-white bg-gray-950 overflow-y-auto"> {/* Adjusted base background */}
-      {/* Background layer for the animated raindrops */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+    // Main container - now acts as the scrollable content wrapper
+    // The background animation will be outside this, fixed to viewport
+    <div className="relative min-h-screen p-10 text-white overflow-y-auto bg-transparent z-10"> {/* bg-transparent as background is now fixed */}
+      {/* FIXED BACKGROUND LAYER */}
+      <div className="fixed inset-0 z-0 bg-gray-950 overflow-hidden pointer-events-none">
         {raindropElements}
       </div>
 
-      {/* NEW CSS for the Subtle Raindrop Ripple Animation (Copied from AdminDash) */}
+      {/* CSS for the Subtle Raindrop Ripple Animation (Moved here for fixed bg) */}
       <style>{`
         .raindrop-ripple-layer {
           width: 0;
@@ -169,15 +171,15 @@ const EmployeeDash = (props) => {
         }
       `}</style>
 
-      {/* Main content remains on top */}
-      <div className="relative z-10">
+      {/* Main content remains on top - it will scroll */}
+      <div className="relative z-20"> {/* Higher z-index for content */}
         <Header userName={taskData?.firstname || "Employee"} changeUser={props.changeUser} />
         <TaskListNum data={tasks} />
         <TaskList
           data={tasks}
           handleAcceptTask={handleAcceptTask}
-          onCompleteTask={onCompleteTask}
-          onFailTask={onFailTask}
+          onCompleteTask={handleCompleteTask}
+          onFailTask={handleFailTask}
         />
       </div>
     </div>

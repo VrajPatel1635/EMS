@@ -7,7 +7,7 @@ const AllTask = ({ allEmployees }) => {
   const employeesToDisplay = Array.isArray(allEmployees) ? allEmployees : [];
 
   return (
-    <div className="bg-[#121826] p-8 mt-8 rounded-2xl shadow-2xl border border-[#374151] text-white">
+    <div className=" p-8 mt-8 rounded-2xl shadow-2xl text-white">
       {/* Title for the section */}
       <h2 className="text-3xl font-extrabold text-center mb-8 text-blue-400">Employee Task Overview</h2>
 

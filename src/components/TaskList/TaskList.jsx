@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'framer-motion'; // For potential subtle animations
 import AcceptTask from './AcceptTask';
 import NewTask from './NewTask';
 import CompleteTask from './CompleteTask';
@@ -55,10 +55,8 @@ const TaskList = ({ data, handleAcceptTask, onCompleteTask, onFailTask }) => {
   return (
     <motion.div
       id="tasklist"
-      // REMOVED: bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-xl border border-gray-700
-      // Adjusted padding to 'p-0' if the padding was exclusively for the box,
-      // or 'px-4' for horizontal padding to ensure tasks aren't against edges.
-      className="flex items-start gap-6 flex-nowrap w-full pt-4 md:pt-6 pb-4 mt-8 mb-10 min-h-[300px] overflow-x-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-900"
+      // Retained styling for the container, ensured overflow-x-auto
+      className="flex items-start gap-6 flex-nowrap w-full p-4 md:p-6  rounded-2xl shadow-xl  mt-8 mb-10 min-h-[300px] overflow-x-auto custom-scrollbar-hidden" // Added custom-scrollbar-hidden class
       variants={listContainerVariants}
       initial="hidden"
       animate="visible"
@@ -69,11 +67,9 @@ const TaskList = ({ data, handleAcceptTask, onCompleteTask, onFailTask }) => {
             return null;
         }
 
-        // Apply consistent styling and spacing for each task card wrapper
         const commonWrapperClass = "flex-shrink-0 w-[320px] h-auto transform transition-transform duration-300 hover:scale-[1.01] overflow-hidden";
 
-        // Check for task status and render appropriate component
-        if (elem?.newTask) { // Moved newTask first to match image order
+        if (elem?.newTask) {
           return (
             <motion.div key={elem.id || idx} variants={taskItemVariants} className={commonWrapperClass}>
               <NewTask data={elem} onAcceptTask={handleAcceptTask} />
@@ -107,27 +103,19 @@ const TaskList = ({ data, handleAcceptTask, onCompleteTask, onFailTask }) => {
 
         return null;
       })}
-       {/* Custom Scrollbar Styles (using CSS within style jsx) */}
+       {/* Custom Scrollbar Styles - Now hidden */}
        <style jsx>{`
-        /* Target Webkit (Chrome, Safari) scrollbars */
-        .scrollbar-thin::-webkit-scrollbar {
-          width: 8px;
-          height: 8px; /* For horizontal scrollbar */
+        /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
+        .custom-scrollbar-hidden::-webkit-scrollbar {
+          width: 0px;  /* For vertical scrollbar */
+          height: 0px; /* For horizontal scrollbar */
+          background: transparent; /* Make background of scrollbar transparent */
         }
 
-        .scrollbar-thumb-gray-600::-webkit-scrollbar-thumb {
-          background-color: #4B5563; /* Tailwind gray-600 */
-          border-radius: 10px;
-        }
-
-        .scrollbar-track-gray-900::-webkit-scrollbar-track {
-          background: #111827; /* Tailwind gray-900 */
-        }
-
-        /* For Firefox (not direct styling, but better than nothing) */
-        .scrollbar-thin {
-          scrollbar-width: thin; /* "auto" or "thin" */
-          scrollbar-color: #4B5563 #111827; /* thumb and track color */
+        /* Hide scrollbar for Firefox */
+        .custom-scrollbar-hidden {
+          scrollbar-width: none; /* "none" hides the scrollbar entirely */
+          -ms-overflow-style: none;  /* IE and Edge */
         }
       `}</style>
     </motion.div>
