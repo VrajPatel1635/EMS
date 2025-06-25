@@ -7,7 +7,7 @@ export const initialEmployeesData = [
     "id": 1,
     "firstname": "Aarav",
     "email": "aarav@example.com",
-    "password": "111",
+    "password": "12345",
     // Note: taskCount is redundant if you calculate it from tasks array.
     // If you explicitly want to store it, ensure it's kept updated when tasks change.
     // My previous TaskListNum calculates it dynamically, which is safer.
@@ -64,7 +64,7 @@ export const initialEmployeesData = [
     "id": 2,
     "firstname": "Priya",
     "email": "priya@example.com",
-    "password": "111",
+    "password": "12345",
     "taskCount": {
       "active": 2,
       "newTask": 1,
@@ -118,7 +118,7 @@ export const initialEmployeesData = [
     "id": 3,
     "firstname": "Raj",
     "email": "raj@example.com",
-    "password": "111",
+    "password": "12345",
     "taskCount": {
       "active": 1,
       "newTask": 1,
@@ -162,7 +162,7 @@ export const initialEmployeesData = [
     "id": 4,
     "firstname": "Meera",
     "email": "meera@example.com",
-    "password": "111",
+    "password": "12345",
     "taskCount": {
       "active": 2,
       "newTask": 1,
@@ -216,7 +216,7 @@ export const initialEmployeesData = [
     "id": 5,
     "firstname": "Karan",
     "email": "karan@example.com",
-    "password": "111",
+    "password": "12345",
     "taskCount": {
       "active": 2,
       "newTask": 1,
@@ -272,5 +272,5 @@ export const initialAdminData = {
   "id": 1,
   "firstname": "Admin",
   "email": "admin@example.com",
-  "password": "111"
+  "password": "12345"
 };
